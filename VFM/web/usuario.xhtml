@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body onload="#{ControladorArchivos.cargarArchivos()};#{ControladorArchivos.cargarArchivosCompartidos()}" style="background-color: gainsboro;">
+    
+    
+        <p:tabView orientation="left" style="background-color: gainsboro;">  
+            
+            <p:tab title="Mis archivos">
+                
+             <h:form id="ViewArchivos">
+                    
+                                <p:dataTable  id="datatableArchivos" 
+                                              value="#{ControladorArchivos.listaArchivos}"
+                                              var="ars" 
+                                              style="column-width: 50px;font-size: 12px;"
+                                              paginator="true"
+                                              rows="10"
+                                              rowsPerPageTemplate="10,20,30"
+
+                                              rowKey="#{ars.archivosPK.nombrearchivo}"
+                                              selection="#{ControladorArchivos.archivo}"
+                                    >
+                                    <p:growl id="growlArchivos" showDetail="true" life="3000" />
+                                    <p:column selectionMode="single" style="width:4%">  
+                                         </p:column>
+                                    <p:column filterBy="#{ars.archivosPK.nombrearchivo}" headerText="Nombre">
+                                        <h:outputText value="#{ars.archivosPK.nombrearchivo}"/>
+                                    </p:column>
+                                    <p:column filterBy="#{ars.tam}" headerText="Size">
+                                        <h:outputText value="#{ars.tam}"/>
+                                    </p:column> 
+                                    <p:column style="width:2%">  
+                                        <p:commandButton id="DownloadButton"  icon="ui-icon-circle-arrow-s" title="Download" actionListener="#{ControladorArchivos.descargar()}" ajax="false">  
+                                           
+                                            <p:fileDownload value="#{ControladorArchivos.descargas}" />
+                                        </p:commandButton>  
+                                    </p:column>
+                                    <p:column style="width:2%">  
+                                        <p:commandButton id="ShareButton"  icon="ui-icon-transferthick-e-w" title="Share" onclick="dlgArchivos.show()">  
+                                        </p:commandButton>  
+                                    </p:column>
+                                    <p:column style="width:2%">  
+                                        <p:commandButton id="DeleteButton"  icon="ui-icon-trash" title="Delete" actionListener="#{ControladorArchivos.borrarArchivo()}" update="growlArchivos">  
+                                        </p:commandButton>  
+                                    </p:column>
+                                </p:dataTable>
+                            </h:form> 
+                <h:form>
+                <p:dialog id="dialog" header="Compartir archivos" widgetVar="dlgArchivos" resizable="false" modal="true" closable="true">  
+                    <p:growl id="growl" showDetail="true" life="3000" />
+        <h:panelGrid id="grid" columns="3" cellpadding="5">  
+            <h:outputLabel for="username" value="Usuario:" />  
+            <p:autoComplete id="login" value="#{ControladorArchivos.usuario}" required="true" requiredMessage="Digite un usuario" completeMethod="#{ControladorArchivos.buscarUsuario}">
+              <p:ajax update="msgUsuario" event="keyup"/>
+             </p:autoComplete>
+            <p:message id="msgUsuario" for="login" display="icon"/>
+            
+            <f:facet name="footer">  
+                <p:commandButton id="BuscarUsuarioButton" value="Compartir" actionListener="#{ControladorArchivos.compartir()}" update="growl" onclick="dlgArchivos.hide()"/>  
+            </f:facet>  
+            
+        </h:panelGrid>  
+          
+    </p:dialog> 
+             
+            </h:form>
+                
+            </p:tab>
+            <p:tab title="Subir Archivo">
+            
+       <h:form id="uploadfile" enctype="multipart/form-data">
+              <p:fileUpload fileUploadListener="#{ControladorArchivos.handleFileUpload}"
+               mode="advanced"
+               update="messages"
+               sizeLimit="10000000"/> 
+               
+              <p:growl id="messages" showDetail="true" life="3000"/>  
+               </h:form>
+            </p:tab>
+            
+        <p:tab title="Archivos compartido">
+            <h:form id="ViewArchivosCompartido">
+
+                                <p:dataTable  id="datatableArchivos" 
+                                              value="#{ControladorArchivos.listaArchivosCompartidos}"
+                                              var="arsC" 
+                                              style="column-width: 50px;font-size: 12px;"
+                                              paginator="true"
+                                              rows="10"
+                                              rowsPerPageTemplate="10,20,30"
+
+                                              rowKey="#{arsC.archivosPK.nombrearchivo}"
+                                              selection="#{ControladorArchivos.archivo}"
+                                    >
+                                    <p:column selectionMode="single" style="width:4%">  
+                                         </p:column>
+                                    <p:column filterBy="#{arsC.archivosPK.nombrearchivo}" headerText="Nombre">
+                                        <h:outputText value="#{arsC.archivosPK.nombrearchivo}"/>
+                                    </p:column>
+                                    <p:column filterBy="#{arsC.archivosPK.nombreusuario}" headerText="Usuario">
+                                        <h:outputText value="#{arsC.archivosPK.nombreusuario}"/>
+                                    </p:column> 
+                                    <p:column style="width:4%">  
+                                        <p:commandButton id="DownloadButton"  icon="ui-icon-circle-arrow-s" title="Download" actionListener="#{ControladorArchivos.descargar()}" ajax="false">  
+                                           
+                                            <p:fileDownload value="#{ControladorArchivos.descargas}" />
+                                        </p:commandButton>  
+                                    </p:column>
+                                    
+                                </p:dataTable>
+                            </h:form> 
+            
+        </p:tab>
+        <p:tab title="Perfil"> </p:tab>
+        </p:tabView>
+        
+    </h:body>
+
+</html>
+
