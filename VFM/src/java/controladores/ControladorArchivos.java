@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -53,7 +55,7 @@ public class ControladorArchivos implements Serializable {
     private List<Archivos> listaArchivosCompartidos;
     private List<Archivos> FiltroArchivos;
     private String Usuario;
-
+    private String ruta;
     public String getUsuario() {
         return Usuario;
     }
@@ -109,6 +111,16 @@ public class ControladorArchivos implements Serializable {
     public void setListaArchivos(List<Archivos> listaArchivos) {
         this.listaArchivos = listaArchivos;
     }
+
+    public String getRuta() {
+        return ruta;
+    }
+
+    public void setRuta(String ruta) {
+        this.ruta = ruta;
+    }
+    
+    
 
     public void handleFileUpload(FileUploadEvent event) {
         setFile(event.getFile());
@@ -303,7 +315,29 @@ public class ControladorArchivos implements Serializable {
         contex.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "debe seleccionar un archivo","archivo no encontrado"));
         }
     
-    
-    
     }
+    
+    public void generarURL(){
+
+        URL direccion=null;
+        try {
+            File file= new File(getArchivo().getRutaarchivo());
+            direccion=file.toURL();
+            setRuta(direccion.toString());
+            System.out.println(getRuta());
+            FacesContext contex = FacesContext.getCurrentInstance();
+            contex.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "se genero la ruta",getRuta()));
+            
+        } catch (MalformedURLException ex) {
+            FacesContext contex = FacesContext.getCurrentInstance();
+            contex.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "debe seleccionar un archivo","archivo no encontrado"));
+        
+        }
+        catch (Exception e){
+            FacesContext contex = FacesContext.getCurrentInstance();
+            contex.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "debe seleccionar un archivo","archivo no encontrado"));
+        }
+       
+        
+}
 }
