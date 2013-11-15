@@ -104,7 +104,7 @@ public class ControladorUsuario implements Serializable{
             nuevo.setPass(getPassword());
         try {
             daoUsuario.create(nuevo);
-            File carpeta= new File("C:\\Users\\Public\\Documents\\Sispro\\"+getLogin());
+            File carpeta= new File("C:\\AppServer\\apache-tomcat-7.0.39\\webapps\\VFM\\"+getLogin());
             carpeta.mkdir();
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Usuario creado con extito", "Bienvenido"+ getLogin())); 
             

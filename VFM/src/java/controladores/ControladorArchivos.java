@@ -10,6 +10,7 @@ import dao.ArchivosJpaController;
 import dao.UsuariosJpaController;
 import dao.exceptions.NonexistentEntityException;
 import dao.exceptions.PreexistingEntityException;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -20,6 +21,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -37,7 +40,7 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
-
+import org.apache.commons.codec.binary.Hex;
 /**
  *
  * @author Fabian
@@ -46,7 +49,7 @@ import org.primefaces.model.UploadedFile;
 @SessionScoped
 public class ControladorArchivos implements Serializable {
 
-    private final String destination = "C:\\Users\\Public\\Documents\\Sispro\\";
+    private final String destination = "C:\\AppServer\\apache-tomcat-7.0.39\\webapps\\VFM\\";
     private UploadedFile file;
     private StreamedContent descargas;
     private EntityManagerFactory factory;
@@ -55,7 +58,6 @@ public class ControladorArchivos implements Serializable {
     private List<Archivos> listaArchivosCompartidos;
     private List<Archivos> FiltroArchivos;
     private String Usuario;
-    private String ruta;
     public String getUsuario() {
         return Usuario;
     }
@@ -112,16 +114,7 @@ public class ControladorArchivos implements Serializable {
         this.listaArchivos = listaArchivos;
     }
 
-    public String getRuta() {
-        return ruta;
-    }
-
-    public void setRuta(String ruta) {
-        this.ruta = ruta;
-    }
-    
-    
-
+  
     public void handleFileUpload(FileUploadEvent event) {
         setFile(event.getFile());
         try {
@@ -319,25 +312,63 @@ public class ControladorArchivos implements Serializable {
     
     public void generarURL(){
 
-        URL direccion=null;
         try {
-            File file= new File(getArchivo().getRutaarchivo());
-            direccion=file.toURL();
-            setRuta(direccion.toString());
-            System.out.println(getRuta());
-            FacesContext contex = FacesContext.getCurrentInstance();
-            contex.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "se genero la ruta",getRuta()));
             
-        } catch (MalformedURLException ex) {
-            FacesContext contex = FacesContext.getCurrentInstance();
-            contex.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "debe seleccionar un archivo","archivo no encontrado"));
-        
-        }
+             String nombre=getArchivo().getArchivosPK().getNombreusuario();
+             String archivo=getArchivo().getArchivosPK().getNombrearchivo();
+            
+             String direccionFinal="http://186.82.223.13:8081/VFM/"+nombre+"/"+archivo;
+           // System.out.println(direccionFinal);
+             URL url= new URL(direccionFinal);
+             String alterno= getMD5(archivo);
+             InputStream input= url.openStream();
+             // System.out.println("entro a url");
+             MessageDigest md= MessageDigest.getInstance("MD5");
+             String digest=getDigest(input, md, 2048);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,"Sample info message",direccionFinal));  
+            //System.out.println("imrpimio url");
+             }
         catch (Exception e){
             FacesContext contex = FacesContext.getCurrentInstance();
             contex.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "debe seleccionar un archivo","archivo no encontrado"));
         }
-       
         
 }
+    
+    public static String getDigest(InputStream is, MessageDigest md, int byteArraySize)
+			throws NoSuchAlgorithmException, IOException {
+
+		md.reset();
+		byte[] bytes = new byte[byteArraySize];
+		int numBytes;
+		while ((numBytes = is.read(bytes)) != -1) {
+			md.update(bytes, 0, numBytes);
+		}
+		byte[] digest = md.digest();
+		String result = new String(Hex.encodeHex(digest));
+		return result;
+	}
+    
+    public String getMD5(String cadena) throws Exception {
+
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] b = md.digest(cadena.getBytes());
+
+        int size = b.length;
+        StringBuilder h = new StringBuilder(size);
+        for (int i = 0; i < size; i++) {
+
+            int u = b[i] & 255;
+
+            if (u < 16)
+            {
+                h.append("0").append(Integer.toHexString(u));
+            }
+            else
+            {
+                h.append(Integer.toHexString(u));
+            }
+        }
+        return h.toString();
+    }
 }

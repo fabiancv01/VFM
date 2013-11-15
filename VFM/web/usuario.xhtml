@@ -78,11 +78,8 @@
                 <h:form>
                 <p:dialog id="dialogURL" header="Direccion web" widgetVar="dlgURL" resizable="false" modal="true" closable="true">  
                     
-                    <h:outputLabel value="#{ControladorArchivos.ruta}" id="vistaruta"/>
-                    <p:outputLabel value="#{ControladorArchivos.ruta}" /> 
-                    <p:commandButton value="url" id="Button" actionListener="#{ControladorArchivos.generarURL()}" update="vistaruta"/>
-                    
-         
+                    <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />
+                   
     </p:dialog> 
              
             </h:form>
